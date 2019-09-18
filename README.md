@@ -10,6 +10,6 @@
 
 https://github.com/reSipWebRTC/reSipWebRTC-Web
 
-https://github.com/reSipWebRTC/reSipWebRTC-Android
+https://github.com/reSipWebRTC/reSipWebRTC-IOS
 
 QQ群：220927853
