@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.reSipWebRTC.reSipWebRTCDemo.CloudrtcDemo">
+
+    <EditText
+        android:id="@+id/editUser"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="24dp"
+        android:ems="10"
+        android:hint="账号配置在右上角配置中心"
+        android:value="601"
+        android:layout_toStartOf="@+id/btnRegister"
+        android:layout_toLeftOf="@+id/btnRegister" />
+
+    <EditText
+        android:id="@+id/editPwd"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="29dp"
+        android:ems="10"
+        android:hint="密码配置在右上角配置中心"
+        android:value="601"
+        android:layout_below="@+id/editUser"
+        android:layout_alignLeft="@+id/editUser"
+        android:layout_alignStart="@+id/editUser"
+        android:layout_alignRight="@+id/editUser"
+        android:layout_alignEnd="@+id/editUser" />
+
+    <EditText
+        android:id="@+id/editCall"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editPwd"
+        android:layout_alignStart="@+id/editPwd"
+        android:layout_alignTop="@+id/btncall"
+        android:ems="10"
+        android:hint="对方账号"
+        android:value="3204"
+        android:layout_alignRight="@+id/editPwd"
+        android:layout_alignEnd="@+id/editPwd">
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/btncall"
+        android:layout_width="50dp"
+        android:layout_height="100dp"
+        android:text="拨号"
+        android:layout_below="@+id/editPwd"
+        android:layout_alignRight="@+id/btdirectCall"
+        android:layout_alignEnd="@+id/btdirectCall" />
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="50dp"
+        android:layout_height="100dp"
+        android:text="注册"
+        android:layout_alignTop="@+id/editUser"
+        android:layout_alignRight="@+id/btdirectCall"
+        android:layout_alignEnd="@+id/btdirectCall" />
+
+    <Button
+        android:id="@+id/btdirectCall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="直接拨号"
+        android:layout_below="@+id/editPeerIp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="92dp"
+        android:layout_marginEnd="92dp" />
+
+    <EditText
+        android:id="@+id/editPeerIp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="对方IP"
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/editCall"
+        android:layout_alignStart="@+id/editCall" />
+
+    <EditText
+        android:id="@+id/editPeerPort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="对方端口"
+        android:layout_marginTop="33dp"
+        android:layout_below="@+id/editPeerIp"
+        android:layout_alignLeft="@+id/editPeerIp"
+        android:layout_alignStart="@+id/editPeerIp" />
+
+    <TextView
+        android:id="@+id/textLocalIP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editPeerPort"
+        android:layout_alignStart="@+id/editPeerPort"
+        android:layout_below="@+id/editPeerPort"
+        android:layout_marginTop="13dp"
+        android:text="本地IP:" />
+
+    <TextView
+        android:id="@+id/LocalIP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textLocalIP"
+        android:layout_toRightOf="@+id/textLocalPort"
+        android:layout_alignRight="@+id/btdirectCall"
+        android:layout_alignEnd="@+id/btdirectCall" />
+
+    <TextView
+        android:id="@+id/textLocalPort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textLocalIP"
+        android:layout_alignStart="@+id/textLocalIP"
+        android:layout_below="@+id/textLocalIP"
+        android:layout_marginTop="31dp"
+        android:text="SIP账号绑定端口:" />
+
+    <TextView
+        android:id="@+id/LocalPort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textLocalPort"
+        android:layout_alignEnd="@+id/LocalIP"
+        android:layout_alignLeft="@+id/LocalIP"
+        android:layout_alignRight="@+id/LocalIP"
+        android:layout_alignStart="@+id/LocalIP" />
+
+</RelativeLayout>
