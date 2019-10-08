@@ -9,7 +9,7 @@
             android:title="Password*" />
         <EditTextPreference
             android:key="sip_account_domain"
-            android:defaultValue="119.23.31.18"
+            android:defaultValue="39.108.167.93:5769"
             android:title="Domain*" />
         <EditTextPreference
             android:key="sip_account_displayname"

@@ -1,5 +1,6 @@
 package com.reSipWebRTC.reSipWebRTCDemo;
 
+import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -11,14 +12,15 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.view.KeyEvent;
 import android.view.OrientationEventListener;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.reSipWebRTC.reSipWebRTCDemo.R;
 import com.reSipWebRTC.sdk.SipCallConnectedListener;
 import com.reSipWebRTC.sdk.SipCallDisConnectListener;
+import com.reSipWebRTC.service.CallConfig;
 import com.reSipWebRTC.service.PhoneService;
 import com.reSipWebRTC.util.Contacts;
 import com.reSipWebRTC.util.Debug;
@@ -39,11 +41,11 @@ public class VideoScreenActivity extends AppCompatActivity implements SipCallCon
 	String number;
 	VideoWaitFragment videoWaitFragment = null;
 
-	@Override
+	@SuppressLint("InvalidWakeLockTag")
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		the_vid_ui = this;
-		System.out.println("================VideoScreenActivity=====onCreate===================");
 		Debug.i(TAG, "onCreate ");
 
 		if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -52,15 +54,21 @@ public class VideoScreenActivity extends AppCompatActivity implements SipCallCon
 			Debug.i(TAG, "portrait");
 		}
 
-		getWindow().addFlags(
-				WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-						| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-						| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+		//getWindow().addFlags(
+				//WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+						//| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+						//| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
+		final Window win = getWindow();
+		win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+				| WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+				| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
 		wakeLock = ((PowerManager) getSystemService(POWER_SERVICE))
 				.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
 						| PowerManager.ON_AFTER_RELEASE, "WakeLockActivity");
-		
+
 		setContentView(R.layout.activity_video);
 
         init();
@@ -71,6 +79,9 @@ public class VideoScreenActivity extends AppCompatActivity implements SipCallCon
         Intent intent = getIntent();
         int state = intent.getIntExtra(Contacts.PHONESTATE, 0);
         call_id = intent.getIntExtra(Contacts.PHONECALLID, 0);
+
+        CallConfig callConfig = (CallConfig) intent.getSerializableExtra("CallConfig");
+        //RECEIVE_VIDEO_REQUEST
 
         boolean isFront = intent.getBooleanExtra(Contacts.PHONEFRONT, false);
         FragmentManager fm = getFragmentManager();
@@ -90,6 +101,7 @@ public class VideoScreenActivity extends AppCompatActivity implements SipCallCon
             bundle.putString(Contacts.PHONNUMBER, number);
             bundle.putString(Contacts.NOTIFACTION_TYPE, pushType);
             bundle.putBoolean(Contacts.PHONEFRONT, isFront);
+            bundle.putSerializable("CallConfig", callConfig);
             videoWaitFragment.setArguments(bundle);
             FragmentTransaction ft = fm.beginTransaction();
             ft.add(R.id.layout_fl, videoWaitFragment, VIDEOWAITE);

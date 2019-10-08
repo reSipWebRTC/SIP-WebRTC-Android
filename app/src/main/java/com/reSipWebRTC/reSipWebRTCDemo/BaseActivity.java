@@ -23,6 +23,9 @@ import androidx.core.view.ViewConfigurationCompat;
 
 public abstract class BaseActivity extends AppCompatActivity {
    // private final static Logger log = LoggerFactory.getLogger(BaseActivity.class);
+    private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 0;
+    private static final int PERMISSION_REQ_ID_CAMERA = 1;
+    private static final int PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +71,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     private boolean checkSelfPermissions() {
-        return true;
-        //checkSelfPermission(Manifest.permission.RECORD_AUDIO, ConstantApp.PERMISSION_REQ_ID_RECORD_AUDIO) &&
-               // checkSelfPermission(Manifest.permission.CAMERA, ConstantApp.PERMISSION_REQ_ID_CAMERA) &&
-                //checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, ConstantApp.PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE);
+        return checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) &&
+                checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA) &&
+                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE);
     }
 
     @Override
@@ -154,33 +156,33 @@ public abstract class BaseActivity extends AppCompatActivity {
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
        // log.debug("onRequestPermissionsResult " + requestCode + " " + Arrays.toString(permissions) + " " + Arrays.toString(grantResults));
         switch (requestCode) {
-           /* case ConstantApp.PERMISSION_REQ_ID_RECORD_AUDIO: {
+             case PERMISSION_REQ_ID_RECORD_AUDIO: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    checkSelfPermission(Manifest.permission.CAMERA, ConstantApp.PERMISSION_REQ_ID_CAMERA);
+                    checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA);
                 } else {
                     finish();
                 }
                 break;
             }
-            case ConstantApp.PERMISSION_REQ_ID_CAMERA: {
+            case PERMISSION_REQ_ID_CAMERA: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, ConstantApp.PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE);
-                    ((AGApplication) getApplication()).initWorkerThread();
+                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE);
+                    //((AGApplication) getApplication()).initWorkerThread();
                 } else {
                     finish();
                 }
                 break;
             }
-            case ConstantApp.PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE: {
+            case PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 } else {
                     finish();
                 }
                 break;
-            }*/
+            }
         }
     }
 

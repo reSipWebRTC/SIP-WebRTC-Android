@@ -46,6 +46,7 @@ public class VideoTalkFragment extends Fragment implements CallMediaStatsReport 
     private LinearLayout mLocalLayout = null;
     private LinearLayout mRemoteLayout = null;
     private int call_id = -1;
+    private SurfaceViewRenderer localProxyRenderer;
     private final ProxyVideoSink remoteProxyRenderer = new ProxyVideoSink();
 
     private static class ProxyVideoSink implements VideoSink {
@@ -65,27 +66,6 @@ public class VideoTalkFragment extends Fragment implements CallMediaStatsReport 
             this.target = target;
         }
     }
-
-    /*private class ProxyRenderer implements VideoRenderer.Callbacks {
-        private VideoRenderer.Callbacks target;
-
-        synchronized public void renderFrame(VideoRenderer.I420Frame frame) {
-            if (target == null) {
-                //Logging.d(TAG, "Dropping frame in proxy because target is null.");
-                VideoRenderer.renderFrameDone(frame);
-                return;
-            }
-
-            target.renderFrame(frame);
-        }
-
-        synchronized public void setTarget(VideoRenderer.Callbacks target) {
-            this.target = target;
-        }
-    }*/
-
-    //private SurfaceViewRenderer remoteProxyRenderer;
-    private SurfaceViewRenderer localProxyRenderer;
 
     /**
      * 是否静音
@@ -132,7 +112,7 @@ public class VideoTalkFragment extends Fragment implements CallMediaStatsReport 
         mHangup.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                PhoneService.instance().hangUpCall(call_id);
+                PhoneService.instance().hangupCall(call_id);
                 getActivity().finish();
             }
         });
@@ -199,7 +179,7 @@ public class VideoTalkFragment extends Fragment implements CallMediaStatsReport 
         remoteProxyRenderer.setTarget(remoteRender);
 
         System.out.println("===============startVideoRender============");
-        PhoneService.instance().startVideoRender(call_id, localProxyRenderer, this.remoteProxyRenderer);
+       // PhoneService.instance().startVideoRender(call_id, localProxyRenderer, this.remoteProxyRenderer);
         PhoneService.instance().setSpeakerphoneOn(call_id, isSpeaker);
         PhoneService.instance().setVideoMaxBitrate(call_id, 500);
 }

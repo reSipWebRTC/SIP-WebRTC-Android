@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.reSipWebRTC.reSipWebRTCDemo.R;
+import com.reSipWebRTC.service.CallConfig;
 import com.reSipWebRTC.service.PhoneService;
 import com.reSipWebRTC.util.Contacts;
 
@@ -26,6 +26,7 @@ public class VideoWaitFragment extends Fragment {
     VideoTalkFragment videoTalkFragment = null;
     private int call_id = -1;
     private String peer_number;
+    private CallConfig callConfig;
 
     public boolean inVideoTalking() {
         return inVideoTalking;
@@ -48,7 +49,7 @@ public class VideoWaitFragment extends Fragment {
         call_state = bundle.getInt(Contacts.PHONESTATE);
         call_id = bundle.getInt(Contacts.PHONECALLID);
         peer_number = bundle.getString(Contacts.PHONNUMBER);
-        System.out.println("============peer_number=========" +peer_number);
+        callConfig = (CallConfig) bundle.getSerializable("CallConfig");
 
         layoutAnswer = (LinearLayout) view.findViewById(R.id.layout_answer);
         layoutClose = (LinearLayout) view.findViewById(R.id.layout_close);
@@ -77,7 +78,7 @@ public class VideoWaitFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(call_state == Contacts.INVITE_VIDEO_REQUEST) {
-                    PhoneService.instance().hangUpCall(call_id);
+                    PhoneService.instance().hangupCall(call_id);
                 } else if(call_state == Contacts.RECEIVE_VIDEO_REQUEST){
                     PhoneService.instance().rejectCall(call_id);
                 }
@@ -89,7 +90,7 @@ public class VideoWaitFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(call_state == Contacts.INVITE_VIDEO_REQUEST) {
-                    PhoneService.instance().hangUpCall(call_id);
+                    PhoneService.instance().hangupCall(call_id);
                 } else if(call_state == Contacts.RECEIVE_VIDEO_REQUEST){
                     PhoneService.instance().rejectCall(call_id);
                 }
@@ -119,11 +120,7 @@ public class VideoWaitFragment extends Fragment {
      * 显示视频电话
      */
     public void goToVideoTalk() {
-        //if(PhoneService.instance().InCalling()) {
-        //PhoneService.instance().AcceptCallUpdate(true);
-        //} else {
-        PhoneService.instance().answerCall(call_id, true);
-        //}
+        PhoneService.instance().answerCall(call_id, callConfig);
     }
 
     /**

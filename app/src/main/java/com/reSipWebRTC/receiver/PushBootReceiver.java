@@ -34,7 +34,7 @@ public class PushBootReceiver extends BroadcastReceiver {
 					10 * 1000, sender);
 		} else if (Intent.ACTION_SHUTDOWN.equals(intent.getAction())) {
 			Debug.e("PushBootReceiver", "系统正在关闭!");
-			PhoneService.instance().hangUpCall(0);
+			PhoneService.instance().hangupCall(0);
 		} else if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
 			Debug.i("PushBootReceiver", "新安装了应用程序!");
 		} else if (Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
