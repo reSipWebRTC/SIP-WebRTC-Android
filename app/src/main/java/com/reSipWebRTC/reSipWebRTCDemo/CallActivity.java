@@ -267,7 +267,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 text = "Audio Call from ";
             }
 
-            lblCall.setText(text + peer_number);
+            lblCall.setText(text + PhoneService.instance().getCallReport(call_id).peerDisplayName());
             lblStatus.setText("Call Received...");
         }
     }
