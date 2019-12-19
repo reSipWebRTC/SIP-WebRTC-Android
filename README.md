@@ -1,5 +1,8 @@
 # reSipWebRTC-Android
 
+此DEMO里面SDK做了版本控制，过段时间SDK失效，只用于测试使用，如果要商业化，请加QQ
+
+
 基于reSIProcate和WebRTC的Android sip客户端
 
 1 基于reSIProcate的Android客户端。支持多人，单人
