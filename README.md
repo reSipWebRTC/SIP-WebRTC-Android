@@ -15,4 +15,4 @@ https://github.com/reSipWebRTC/reSipWebRTC-Web
 
 https://github.com/reSipWebRTC/reSipWebRTC-IOS
 
-QQ群：220927853
+QQ：2766946534
