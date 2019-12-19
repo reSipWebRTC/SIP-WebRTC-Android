@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -20,22 +21,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.reSipWebRTC.sdk.CallStreamListener;
 import com.reSipWebRTC.sdk.SipCallConnectedListener;
 import com.reSipWebRTC.sdk.SipCallDisConnectListener;
-import com.reSipWebRTC.service.CallConfig;
+import com.reSipWebRTC.service.CallParams;
+import com.reSipWebRTC.service.CallParamsImpl;
 import com.reSipWebRTC.service.PhoneService;
 import com.reSipWebRTC.util.Contacts;
-
-import org.webrtc.EglBase;
-import org.webrtc.RendererCommon;
-import org.webrtc.SurfaceViewRenderer;
-import org.webrtc.VideoFrame;
-import org.webrtc.VideoSink;
-
 
 public class CallActivity extends AppCompatActivity implements SipCallConnectedListener,
         SipCallDisConnectListener, CallStreamListener, View.OnClickListener,
         KeypadFragment.OnFragmentInteractionListener {
     private static final String TAG = "CallActivity";
-    private CallConfig callConfig = null;
+    private CallParams callParams = null;
     private boolean muteAudio = false;
     private boolean muteVideo = false;
     private boolean isVideo = false;
@@ -71,34 +66,8 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
     private static final int REMOTE_WIDTH = 100;
     private static final int REMOTE_HEIGHT = 100;
 
-    private EglBase rootEglBase;
-    private PercentFrameLayout localRenderLayout;
-    private PercentFrameLayout remoteRenderLayout;
-    private RendererCommon.ScalingType scalingType;
-    private SurfaceViewRenderer localRender;
-    private SurfaceViewRenderer remoteRender;
-
-    private final CallActivity.ProxyVideoSink localProxyRenderer = new CallActivity.ProxyVideoSink();
-    private final CallActivity.ProxyVideoSink remoteProxyRenderer = new CallActivity.ProxyVideoSink();
-
-
-    private static class ProxyVideoSink implements VideoSink {
-        private VideoSink target;
-
-        @Override
-        synchronized public void onFrame(VideoFrame frame) {
-            if (target == null) {
-                //Logging.d(TAG, "Dropping frame in proxy because target is null.");
-                return;
-            }
-
-            target.onFrame(frame);
-        }
-
-        synchronized public void setTarget(VideoSink target) {
-            this.target = target;
-        }
-    }
+    private FrameLayout localRenderLayout;
+    private FrameLayout remoteRenderLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,8 +130,6 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         PhoneService.instance().setSipCallDisConnectListener(this);
         PhoneService.instance().setCallStreamListener(this);
 
-        rootEglBase = EglBase.create();
-
         // open keypad
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.add(R.id.keypad_fragment_container, keypadFragment);
@@ -173,33 +140,9 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
 
     private void initializeVideo(boolean videoEnable)
     {
-        scalingType = RendererCommon.ScalingType.SCALE_ASPECT_FILL;
-
-        this.localRenderLayout = (PercentFrameLayout)findViewById(R.id.local_video_layout);
-        this.remoteRenderLayout = (PercentFrameLayout)findViewById(R.id.remote_video_layout);
-        localRender = (SurfaceViewRenderer)localRenderLayout.getChildAt(0);
-        remoteRender = (SurfaceViewRenderer)remoteRenderLayout.getChildAt(0);
-
-        localRender.init(getRenderContext(), null);
-        localRender.setZOrderMediaOverlay(true);
-        remoteRender.init(getRenderContext(), null);
-        localRender.setEnableHardwareScaler(true /* enabled */);
-        remoteRender.setEnableHardwareScaler(false /* enabled */);
-
-        localProxyRenderer.setTarget(localRender);
-        remoteProxyRenderer.setTarget(remoteRender);
-
-        localRender.setVisibility(View.INVISIBLE);
-        remoteRender.setVisibility(View.INVISIBLE);
-
-        callConfig = new CallConfig(true,
-                640, 480, 15,
-                "VP8", 500,
-                "OPUS", 32, rootEglBase);
-    }
-
-    public EglBase.Context getRenderContext() {
-        return rootEglBase.getEglBaseContext();
+        this.localRenderLayout = (FrameLayout) findViewById(R.id.local_video_layout);
+        this.remoteRenderLayout = (FrameLayout)findViewById(R.id.remote_video_layout);
+        callParams = new CallParamsImpl();
     }
 
     @Override
@@ -256,7 +199,8 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
 
             lblCall.setText(text + peer_number);
             lblStatus.setText("Initiating Call...");
-            PhoneService.instance().makeCall(peer_number, callConfig);
+            callParams.enableVideo(true);
+            PhoneService.instance().makeCall(peer_number, callParams);
         }
         if (callDirection == Contacts.RECEIVE_VIDEO_REQUEST) {
             String text;
@@ -267,7 +211,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 text = "Audio Call from ";
             }
 
-            lblCall.setText(text + PhoneService.instance().getCallReport(call_id).peerDisplayName());
+            lblCall.setText(text + PhoneService.instance().getCallParams(call_id).peerDisplayName());
             lblStatus.setText("Call Received...");
         }
     }
@@ -278,7 +222,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
             if (call_id > 0) {
                 // incoming ringing
                 lblStatus.setText("Rejecting Call...");
-                PhoneService.instance().hangupCall(call_id);;
+                PhoneService.instance().hangupCall(call_id);
             }
             finish();
         } else if (view.getId() == R.id.button_answer) {
@@ -286,8 +230,8 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 lblStatus.setText("Answering Call...");
                 btnAnswer.setVisibility(View.INVISIBLE);
                 btnAnswerAudio.setVisibility(View.INVISIBLE);
-
-                PhoneService.instance().answerCall(call_id, callConfig);
+                //PhoneService.instance().getCallParams(call_id).setEglBase(rootEglBase);
+                PhoneService.instance().answerCall(call_id);
             }
         } else if (view.getId() == R.id.button_answer_audio) {
             if (call_id > 0) {
@@ -295,7 +239,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 btnAnswer.setVisibility(View.INVISIBLE);
                 btnAnswerAudio.setVisibility(View.INVISIBLE);
 
-                PhoneService.instance().answerCall(call_id, callConfig);
+                PhoneService.instance().answerCall(call_id);
             }
         } else if (view.getId() == R.id.button_keypad) {
             keypadFragment.setCallId(call_id);
@@ -321,7 +265,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 }
             }
         } else if (view.getId() == R.id.button_mute_video) {
-            if (call_id > 0) {
+            /*if (call_id > 0) {
                 muteVideo = !muteVideo;
                 if (muteVideo) {
                     btnMuteVideo.setImageResource(R.drawable.video_muted);
@@ -329,6 +273,19 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 } else {
                     btnMuteVideo.setImageResource(R.drawable.video_unmuted);
                     PhoneService.instance().startVideoSending(call_id);
+                }
+            }*/
+
+            if (call_id > 0) {
+                muteVideo = !muteVideo;
+                if (muteVideo) {
+                    btnMuteVideo.setImageResource(R.drawable.video_muted);
+                    //PhoneService.instance().stopVideoSending(call_id);
+                    PhoneService.instance().updateCallByInfo(call_id, false);
+                } else {
+                    btnMuteVideo.setImageResource(R.drawable.video_unmuted);
+                   // PhoneService.instance().startVideoSending(call_id);
+                    PhoneService.instance().updateCallByInfo(call_id, true);
                 }
             }
         }
@@ -469,6 +426,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
     @Override
     public void onCallConnected(int call_id) {
         lblStatus.setText("Connected");
+        this.call_id = call_id;
         btnMuteAudio.setVisibility(View.VISIBLE);
         if (!isVideo) {
             btnMuteVideo.setEnabled(false);
@@ -504,18 +462,18 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
 
     @Override
     public void onLocalVideoReady(int callId) {
-        localRender.setVisibility(View.VISIBLE);
+        /*localRender.setVisibility(View.VISIBLE);
         localRenderLayout.setPosition(
                 LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING, LOCAL_WIDTH_CONNECTING, LOCAL_HEIGHT_CONNECTING);
         localRender.setScalingType(scalingType);
         localRender.setMirror(true);
-        localRender.requestLayout();
-        PhoneService.instance().setLocalVideoRender(callId, localProxyRenderer);
+        localRender.requestLayout();*/
+        //PhoneService.instance().setLocalVideoRender(callId, localRenderLayout);
     }
 
     @Override
     public void onRemoteVideoReady(int callId) {
-        remoteRender.setVisibility(View.VISIBLE);
+        /*remoteRender.setVisibility(View.VISIBLE);
         remoteRenderLayout.setPosition(REMOTE_X, REMOTE_Y, REMOTE_WIDTH, REMOTE_HEIGHT);
         remoteRender.setScalingType(scalingType);
         remoteRender.setMirror(false);
@@ -525,7 +483,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         localRender.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
         localRender.setMirror(true);
         localRender.requestLayout();
-        remoteRender.requestLayout();
-        PhoneService.instance().setRemoteVideoRender(callId, remoteProxyRenderer);
+        remoteRender.requestLayout();*/
+        PhoneService.instance().setRemoteVideoRender(callId, remoteRenderLayout);
     }
 }

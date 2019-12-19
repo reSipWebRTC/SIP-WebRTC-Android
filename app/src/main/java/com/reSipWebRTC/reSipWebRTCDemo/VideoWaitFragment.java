@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.reSipWebRTC.service.CallConfig;
+import com.reSipWebRTC.service.CallParams;
 import com.reSipWebRTC.service.PhoneService;
 import com.reSipWebRTC.util.Contacts;
 
@@ -26,7 +26,7 @@ public class VideoWaitFragment extends Fragment {
     VideoTalkFragment videoTalkFragment = null;
     private int call_id = -1;
     private String peer_number;
-    private CallConfig callConfig;
+    private CallParams callParams;
 
     public boolean inVideoTalking() {
         return inVideoTalking;
@@ -49,7 +49,6 @@ public class VideoWaitFragment extends Fragment {
         call_state = bundle.getInt(Contacts.PHONESTATE);
         call_id = bundle.getInt(Contacts.PHONECALLID);
         peer_number = bundle.getString(Contacts.PHONNUMBER);
-        callConfig = (CallConfig) bundle.getSerializable("CallConfig");
 
         layoutAnswer = (LinearLayout) view.findViewById(R.id.layout_answer);
         layoutClose = (LinearLayout) view.findViewById(R.id.layout_close);
@@ -120,7 +119,7 @@ public class VideoWaitFragment extends Fragment {
      * 显示视频电话
      */
     public void goToVideoTalk() {
-        PhoneService.instance().answerCall(call_id, callConfig);
+        PhoneService.instance().answerCall(call_id);
     }
 
     /**

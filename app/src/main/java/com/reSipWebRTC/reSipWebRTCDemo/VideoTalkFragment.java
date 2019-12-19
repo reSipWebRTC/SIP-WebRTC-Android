@@ -16,13 +16,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.reSipWebRTC.reSipWebRTCDemo.R;
 import com.reSipWebRTC.sdk.CallMediaStatsReport;
 import com.reSipWebRTC.service.PhoneService;
 import com.reSipWebRTC.util.Contacts;
 
 import org.webrtc.EglBase;
-import org.webrtc.Logging;
 import org.webrtc.StatsReport;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoFrame;
@@ -179,7 +177,6 @@ public class VideoTalkFragment extends Fragment implements CallMediaStatsReport 
         remoteProxyRenderer.setTarget(remoteRender);
 
         System.out.println("===============startVideoRender============");
-       // PhoneService.instance().startVideoRender(call_id, localProxyRenderer, this.remoteProxyRenderer);
         PhoneService.instance().setSpeakerphoneOn(call_id, isSpeaker);
         PhoneService.instance().setVideoMaxBitrate(call_id, 500);
 }

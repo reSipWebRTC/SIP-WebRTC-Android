@@ -95,7 +95,7 @@
         </receiver>
         <receiver android:name="com.reSipWebRTC.receiver.Alarmreceiver" >
             <intent-filter>
-                <action android:name="cloudwebrtc.alarm.action" />
+                <action android:name="resipwebrtc.alarm.action" />
             </intent-filter>
         </receiver>
     </application>

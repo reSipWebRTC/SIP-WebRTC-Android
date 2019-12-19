@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.reSipWebRTC.sdk.SipCallConnectedListener;
 import com.reSipWebRTC.sdk.SipCallDisConnectListener;
-import com.reSipWebRTC.service.CallConfig;
+import com.reSipWebRTC.service.CallParams;
 import com.reSipWebRTC.service.PhoneService;
 import com.reSipWebRTC.util.Contacts;
 import com.reSipWebRTC.util.Debug;
@@ -80,9 +80,6 @@ public class VideoScreenActivity extends AppCompatActivity implements SipCallCon
         int state = intent.getIntExtra(Contacts.PHONESTATE, 0);
         call_id = intent.getIntExtra(Contacts.PHONECALLID, 0);
 
-        CallConfig callConfig = (CallConfig) intent.getSerializableExtra("CallConfig");
-        //RECEIVE_VIDEO_REQUEST
-
         boolean isFront = intent.getBooleanExtra(Contacts.PHONEFRONT, false);
         FragmentManager fm = getFragmentManager();
         if (isFront) {
@@ -101,7 +98,6 @@ public class VideoScreenActivity extends AppCompatActivity implements SipCallCon
             bundle.putString(Contacts.PHONNUMBER, number);
             bundle.putString(Contacts.NOTIFACTION_TYPE, pushType);
             bundle.putBoolean(Contacts.PHONEFRONT, isFront);
-            bundle.putSerializable("CallConfig", callConfig);
             videoWaitFragment.setArguments(bundle);
             FragmentTransaction ft = fm.beginTransaction();
             ft.add(R.id.layout_fl, videoWaitFragment, VIDEOWAITE);
