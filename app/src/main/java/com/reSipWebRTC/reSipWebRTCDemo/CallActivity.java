@@ -486,4 +486,14 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         remoteRender.requestLayout();*/
         PhoneService.instance().setRemoteVideoRender(callId, remoteRenderLayout);
     }
+
+    @Override
+    public void onUpdatedByRemote(int i, boolean b) {
+
+    }
+
+    @Override
+    public void onUpdatedByLocal(int i, boolean b) {
+
+    }
 }
