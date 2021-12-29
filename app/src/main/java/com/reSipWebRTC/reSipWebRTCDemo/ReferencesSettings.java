@@ -12,8 +12,8 @@ import android.view.KeyEvent;
 
 import com.reSipWebRTC.reSipWebRTCDemo.R;
 
-import org.webrtc.Camera2Enumerator;
-import org.webrtc.voiceengine.WebRtcAudioUtils;
+//import org.webrtc.Camera2Enumerator;
+//import org.webrtc.voiceengine.WebRtcAudioUtils;
 
 public  class ReferencesSettings extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 	private String keyprefVideoCall;
@@ -192,7 +192,7 @@ public  class ReferencesSettings extends PreferenceActivity implements OnSharedP
 
 		//updateSummaryB(sharedPreferences, keyPrefTracing);
 
-		if (!Camera2Enumerator.isSupported(this)) {
+		/*if (!Camera2Enumerator.isSupported(this)) {
 			Preference camera2Preference = findPreference(keyprefCamera2);
 
 			camera2Preference.setSummary(getString(R.string.pref_camera2_not_supported));
@@ -226,7 +226,7 @@ public  class ReferencesSettings extends PreferenceActivity implements OnSharedP
 
 			disableBuiltInNSPreference.setSummary(getString(R.string.pref_built_in_ns_not_available));
 			disableBuiltInNSPreference.setEnabled(false);
-		}
+		}*/
 	  }
 	  
     private boolean peference_is_change = false;

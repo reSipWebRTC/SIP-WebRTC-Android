@@ -38,8 +38,9 @@ import com.reSipWebRTC.util.Contacts;
 public class CloudrtcDemo extends BaseActivity implements OnClickListener,
         SipRegisterListener, SipIncomingCallListener, SipOutgoingCallListener {
 
-    private Button mBtnRegister, mBtnCall, mVideoCall, mbtnDirectCall;
-    private EditText mEditPwd, mEditUser, mEditCall, mEditPeerIp, mEditPeerPort;
+    private Button mBtnRegister, mBtnCall, mVideoCall;
+    private EditText mEditPwd, mEditUser, mEditCall;
+     //mEditPeerIp, mEditPeerPort;
     private TextView mTextViewLocalIp, mTextViewLocalPort;
     private String mPwd, mUser, mPeerNumber, mPeerIp, mLocalIp, mPeerPortString, mLocalPortString;
     private int mPeerPort, mLocalPort;
@@ -78,7 +79,7 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
     private String keyprefDataProtocol;
     private String keyprefNegotiated;
     private String keyprefDataId;
-    private int acc_id = -1, call_id = -1;
+    private int acc_id = -1, call_id = 1;
     private boolean isRegistrationSuccess = false;
     String phoneNumber = null;
     String password = null;
@@ -110,7 +111,7 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
         }
     };
 
-    @Override
+    /*@Override
     public void onRegistrationProgress(int acc_id) {
         this.acc_id = acc_id;
         isRegistrationSuccess = false;
@@ -126,26 +127,34 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
         Message msg = new Message();
         msg.what = 0x222;
         handler.sendMessage(msg);
-    }
+    }*/
 
     @Override
-    public void onRegisterationFailed(int acc_id, int code, String reason) {
-        isRegistrationSuccess = false;
-        this.acc_id = acc_id;
-        Message msg = new Message();
-        msg.what = 0x333;
-        System.out.println("onRegisterationFailed");
-        handler.sendMessage(msg);
+    public void onRegistrationState(int acc_id, int code, String reason) {
+        if(code == 3) {
+             isRegistrationSuccess = false;
+             this.acc_id = acc_id;
+             Message msg = new Message();
+             msg.what = 0x333;
+             System.out.println("onRegistrationFailed");
+             handler.sendMessage(msg);
+        } else {
+            isRegistrationSuccess = false;
+            this.acc_id = acc_id;
+            Message msg = new Message();
+            msg.what = 0x444;
+            handler.sendMessage(msg);
+        }
     }
 
-    @Override
+    /*@Override
     public void onRegistrationCleared(int acc_id) {
         isRegistrationSuccess = false;
         this.acc_id = acc_id;
         Message msg = new Message();
         msg.what = 0x444;
         handler.sendMessage(msg);
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,12 +175,12 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
         mBtnRegister = (Button) this.findViewById(R.id.btnRegister);
         mBtnRegister.setOnClickListener(this);
         mBtnCall = (Button) this.findViewById(R.id.btncall);
-        mbtnDirectCall = (Button) this.findViewById(R.id.btdirectCall);
-        mEditPeerIp = (EditText) this.findViewById(R.id.editPeerIp);
-        mEditPeerPort = (EditText) this.findViewById(R.id.editPeerPort);
+        //mbtnDirectCall = (Button) this.findViewById(R.id.btdirectCall);
+        //mEditPeerIp = (EditText) this.findViewById(R.id.editPeerIp);
+        //mEditPeerPort = (EditText) this.findViewById(R.id.editPeerPort);
 
         mBtnCall.setOnClickListener(this);
-        mbtnDirectCall.setOnClickListener(this);
+        //mbtnDirectCall.setOnClickListener(this);
 
         mEditPwd = (EditText) this.findViewById(R.id.editPwd);
         mEditUser = (EditText) this.findViewById(R.id.editUser);
@@ -214,8 +223,13 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
         // mVideoCall.setOnClickListener(this);
 
         if (!PhoneService.isready()) {
-            PhoneService.startService(this);
+            PhoneService.instance();
+            PhoneService.instance().initSDK(this, 1, "0.0.0.0", 5060);
         }
+
+        PhoneService.instance().setSipRegisterListener(this);
+        PhoneService.instance().setSipIncomingListener(this);
+        PhoneService.instance().setSipOutgoingListener(this);
 
         /*Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.github.com/")
@@ -254,7 +268,7 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
                     mBtnRegister.setEnabled(true);
                     mBtnRegister.setText("注销");
                 }
-                mTextViewLocalIp.setText(PhoneService.instance().getLocalSipListenIP());
+                mTextViewLocalIp.setText(PhoneService.instance().getLocalIPAddress());
                 mTextViewLocalPort.setText("" +PhoneService.instance().getLocalSipListenPort());
             }
         }, 1500);
@@ -349,9 +363,9 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
         this.mPwd = this.mEditPwd.getText().toString();
         this.mUser = this.mEditUser.getText().toString();
 
-        PhoneService.instance().setSipRegisterListener(this);
-        PhoneService.instance().setSipIncomingListener(this);
-        PhoneService.instance().setSipOutgoingListener(this);
+        //PhoneService.instance().setSipRegisterListener(this);
+        //PhoneService.instance().setSipIncomingListener(this);
+        //PhoneService.instance().setSipOutgoingListener(this);
 
         if (v.getId() == R.id.btnRegister) {
             boolean ret = PhoneService.instance().isRegistered(acc_id);
@@ -373,7 +387,7 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
                     PhoneService.instance().unRegisterSipAccount(1);
                     PhoneService.instance().registerSipAccount(accountConfig);
                 }
-                String ip = PhoneService.instance().getLocalSipListenIP();
+                String ip = PhoneService.instance().getLocalIPAddress();
                 int port = PhoneService.instance().getLocalSipListenPort();
                 System.out.println("======HostIP===ListenPort=:" + ip + ":" + port);
             } else {
@@ -386,7 +400,7 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
               //  Toast.makeText(CloudrtcDemo.this, "请先注册再呼叫", Toast.LENGTH_SHORT).show();
                 //return;
             //}
-            if (!PhoneService.instance().isInCalling(call_id)) {
+            //if (!PhoneService.instance().isCallActive(call_id)) {
                 this.mPeerNumber = this.mEditCall.getText().toString();
                 if (!TextUtils.isEmpty(mPeerNumber)) {
 
@@ -531,29 +545,20 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
                         PhoneService.checkAndRequestPermission(CloudrtcDemo.this,
                                 new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, 0);
                     } else if (PhoneService.isVoicePermission() && PhoneService.cameraIsCanUse()) {*/
-                    if(PhoneService.instance().isNetworkReachable())
-                        makeCall("sip:"+mPeerNumber+"@"+sip_server);
-                    else {
+                    //if(PhoneService.instance().isNetworkReachable()) {
+                        //("sip:"+mPeerNumber+"@"+sip_server);
+                        //makeCall(mPeerNumber);
+                        makeCall("sip:" +mPeerNumber +";transport=tcp");
+                        Log.e("CloudrtcDemo", "===========makeCall=========:" +mPeerNumber);
+                    //}
+                    //else {
                         Toast.makeText(CloudrtcDemo.this, "网络没有连接", Toast.LENGTH_SHORT).show();
-                    }
+                    //}makeCall
                    /* } else {
                         Toast.makeText(CloudrtcDemo.this, "请打开相机和录音权限", Toast.LENGTH_SHORT).show();
                     }*/
                 }
-            }
-        } else if (v.getId() == R.id.btdirectCall) {
-            this.mPeerIp = this.mEditPeerIp.getText().toString();
-            this.mPeerPortString = this.mEditPeerPort.getText().toString();
-            if (!TextUtils.isEmpty(mPeerIp) && !TextUtils.isEmpty(mPeerPortString)) {
-                if(PhoneService.instance().isAccountInstance()) {
-                    mPeerPort= Integer.parseInt(this.mPeerPortString);
-                    //PhoneService.instance().directCall(mPeerIp, mPeerPort, callParams);
-                } else {
-                    Toast.makeText(CloudrtcDemo.this, "请先注册账号，账号注册的服务端IP地址和账号和密码可以随便填写", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(CloudrtcDemo.this, "请输入对方IP地址和端口", Toast.LENGTH_SHORT).show();
-            }
+            //}
         }
     }
 
@@ -569,10 +574,15 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
     }
 
     @Override
-    public void onCallIncoming(int call_id, String peer_number) {
+    public void onCallIncoming(int call_id, String peerCallerUri, String peerDiaplayName,
+                               String peerDeviceType, boolean existsAudio, boolean existsVideo) {
 
+        //if(this.call_id != call_id) {
+            //PhoneService.instance().rejectCall(call_id, 603);
+            //return;
+        //}
         this.call_id = call_id;
-        this.peer_caller = peer_number;
+        this.peer_caller = peerDiaplayName;
         Log.e("CloudrtcDemo", "===========onCallIncoming=========");
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PhoneService.checkAndRequestPermission(CloudrtcDemo.this,
@@ -600,9 +610,10 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
     }
 
     @Override
-    public void onCallOutgoing(int call_id, String peer_number) {
+    public void onCallOutgoing(int call_id, String peerCallerUri, String peerDisplayName) {
+        Log.e("CloudrtcDemo", "=============:" +call_id);
         /*this.call_id = call_id;
-        this.peer_caller = peer_number;
+        this.peer_caller = peerCallerUri;
         Intent intent = new Intent(this, CallActivity.class);
         intent.putExtra(Contacts.PHONECALLID, this.call_id);
         intent.putExtra(Contacts.PHONNUMBER, peer_caller);
@@ -643,7 +654,7 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
                     Toast.makeText(CloudrtcDemo.this, "相机录音已授权", Toast.LENGTH_SHORT).show();
                     callParams = new CallParamsImpl();
                     callParams.enableVideo(true);
-                    PhoneService.instance().makeCall(mPeerNumber, callParams);
+                    PhoneService.instance().call(mPeerNumber, callParams);
                     System.out.println("=====================");
                 } else {
                     Toast.makeText(CloudrtcDemo.this, "相机或录音未授权", Toast.LENGTH_SHORT).show();

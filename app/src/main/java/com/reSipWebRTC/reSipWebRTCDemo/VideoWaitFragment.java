@@ -79,7 +79,7 @@ public class VideoWaitFragment extends Fragment {
                 if(call_state == Contacts.INVITE_VIDEO_REQUEST) {
                     PhoneService.instance().hangupCall(call_id);
                 } else if(call_state == Contacts.RECEIVE_VIDEO_REQUEST){
-                    PhoneService.instance().rejectCall(call_id);
+                    PhoneService.instance().rejectCall(call_id, 603, "reject");
                 }
                 getActivity().finish();
             }
@@ -91,7 +91,7 @@ public class VideoWaitFragment extends Fragment {
                 if(call_state == Contacts.INVITE_VIDEO_REQUEST) {
                     PhoneService.instance().hangupCall(call_id);
                 } else if(call_state == Contacts.RECEIVE_VIDEO_REQUEST){
-                    PhoneService.instance().rejectCall(call_id);
+                    PhoneService.instance().rejectCall(call_id, 603, "reject");
                 }
                 getActivity().finish();
             }
@@ -119,7 +119,7 @@ public class VideoWaitFragment extends Fragment {
      * 显示视频电话
      */
     public void goToVideoTalk() {
-        PhoneService.instance().answerCall(call_id);
+        PhoneService.instance().answerCall(call_id, true);
     }
 
     /**

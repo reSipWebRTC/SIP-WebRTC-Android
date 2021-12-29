@@ -18,15 +18,15 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.reSipWebRTC.sdk.CallLogBean;
 import com.reSipWebRTC.sdk.SipCallConnectedListener;
-import com.reSipWebRTC.sdk.SipCallDisConnectListener;
-import com.reSipWebRTC.service.CallParams;
+import com.reSipWebRTC.sdk.SipCallEndListener;
 import com.reSipWebRTC.service.PhoneService;
 import com.reSipWebRTC.util.Contacts;
 import com.reSipWebRTC.util.Debug;
 import com.reSipWebRTC.util.Direction;
 
-public class VideoScreenActivity extends AppCompatActivity implements SipCallConnectedListener, SipCallDisConnectListener {
+public class VideoScreenActivity extends AppCompatActivity implements SipCallConnectedListener, SipCallEndListener {
 	private final String TAG = VideoScreenActivity.class.getSimpleName();
 	static public VideoScreenActivity the_vid_ui = null;
 	private OrientationEventListener orientationListener;
@@ -117,7 +117,7 @@ public class VideoScreenActivity extends AppCompatActivity implements SipCallCon
         orientationListener.enable();
 
         PhoneService.instance().setSipCallConnectedListener(this);
-        PhoneService.instance().setSipCallDisConnectListener(this);
+        PhoneService.instance().setSipCallEndListener(this);
     }
 
     PowerManager.WakeLock wakeLock;
@@ -215,7 +215,7 @@ public class VideoScreenActivity extends AppCompatActivity implements SipCallCon
 	}
 
 	@Override
-	public void onCallDisConnect(int call_id, int status) {
+	public void onCallEnd(int call_id, int status, CallLogBean mCallLogBean) {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
 		handler.postDelayed(new Runnable() {

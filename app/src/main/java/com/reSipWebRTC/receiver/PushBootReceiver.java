@@ -16,7 +16,7 @@ public class PushBootReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent)
 	{
 		/* 自动启动Service */
-		PhoneService.startService(context);
+		//PhoneService.startService(context);
 
 		if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
 			Log.i("PushBootReceiver", "手机开机了!");

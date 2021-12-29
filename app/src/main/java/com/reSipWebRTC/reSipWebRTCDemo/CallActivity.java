@@ -3,13 +3,13 @@ package com.reSipWebRTC.reSipWebRTCDemo;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,16 +18,18 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.reSipWebRTC.sdk.CallLogBean;
 import com.reSipWebRTC.sdk.CallStreamListener;
 import com.reSipWebRTC.sdk.SipCallConnectedListener;
-import com.reSipWebRTC.sdk.SipCallDisConnectListener;
+import com.reSipWebRTC.sdk.SipCallEndListener;
 import com.reSipWebRTC.service.CallParams;
 import com.reSipWebRTC.service.CallParamsImpl;
 import com.reSipWebRTC.service.PhoneService;
 import com.reSipWebRTC.util.Contacts;
 
 public class CallActivity extends AppCompatActivity implements SipCallConnectedListener,
-        SipCallDisConnectListener, CallStreamListener, View.OnClickListener,
+        SipCallEndListener, CallStreamListener, View.OnClickListener,
         KeypadFragment.OnFragmentInteractionListener {
     private static final String TAG = "CallActivity";
     private CallParams callParams = null;
@@ -49,7 +51,6 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
     ImageButton btnKeypad;
     KeypadFragment keypadFragment;
     TextView lblCall, lblStatus, lblTimer;
-
     // Local preview screen position before call is connected.
     private static final int LOCAL_X_CONNECTING = 0;
     private static final int LOCAL_Y_CONNECTING = 0;
@@ -68,6 +69,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
 
     private FrameLayout localRenderLayout;
     private FrameLayout remoteRenderLayout;
+    private SurfaceView remoteVideo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +129,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         btnKeypad.setVisibility(View.INVISIBLE);
 
         PhoneService.instance().setSipCallConnectedListener(this);
-        PhoneService.instance().setSipCallDisConnectListener(this);
+        PhoneService.instance().setSipCallEndListener(this);
         PhoneService.instance().setCallStreamListener(this);
 
         // open keypad
@@ -142,6 +144,8 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
     {
         this.localRenderLayout = (FrameLayout) findViewById(R.id.local_video_layout);
         this.remoteRenderLayout = (FrameLayout)findViewById(R.id.remote_video_layout);
+        remoteVideo = PhoneService.instance().createRendererView(this);
+        this.remoteRenderLayout.addView(remoteVideo);
         callParams = new CallParamsImpl();
     }
 
@@ -196,11 +200,24 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
             else {
                 text = "Audio Calling ";
             }
-
             lblCall.setText(text + peer_number);
             lblStatus.setText("Initiating Call...");
             callParams.enableVideo(true);
-            PhoneService.instance().makeCall(peer_number, callParams);
+            callParams.setAudioCodec("opus");
+            callParams.setLocalDisplayName("david.xu");
+            callParams.setVideoWidth(640);
+            callParams.setVideoHeight(480);
+            callParams.setVideoFps(15);
+            callParams.setVideoMinBitrate(2000);
+            callParams.setVideoMaxBitrate(2000);
+            callParams.setUseCamera2(false);
+            callParams.setEnableCpuOveruseDetection(true);
+            callParams.setVideoCodecHwAcceleration(true);
+            callParams.setLocalDeviceType("indoor");
+
+            Log.e("callActivity", "========Initiating Call============:" +peer_number);
+            call_id = PhoneService.instance().call(peer_number, callParams);
+            //PhoneService.instance().setSpeakerphoneOn(call_id, true);
         }
         if (callDirection == Contacts.RECEIVE_VIDEO_REQUEST) {
             String text;
@@ -211,15 +228,36 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 text = "Audio Call from ";
             }
 
-            lblCall.setText(text + PhoneService.instance().getCallParams(call_id).peerDisplayName());
+            lblCall.setText(text + PhoneService.instance().getCallParams(call_id).remoteDisplayName());
             lblStatus.setText("Call Received...");
+
+            //add by david.xu
+            /*lblStatus.setText("Answering Call...");
+            lblStatus.setText("Answering Call...");
+            btnAnswer.setVisibility(View.INVISIBLE);
+            btnAnswerAudio.setVisibility(View.INVISIBLE);
+            CallParams callParams = PhoneService.instance().getCallParams(call_id);
+            callParams.enableVideo(true);
+            callParams.setAudioCodec("opus");
+            callParams.setLocalDisplayName("david.xu");
+            callParams.setVideoWidth(640);
+            callParams.setVideoHeight(480);
+            callParams.setVideoFps(15);
+            callParams.setVideoMinBitrate(2000);
+            callParams.setVideoMaxBitrate(2000);
+            callParams.setUseCamera2(false);
+            callParams.setEnableCpuOveruseDetection(true);
+            callParams.setVideoCodecHwAcceleration(true);
+            PhoneService.instance().answerCall(call_id, true);*/
+            PhoneService.instance().answerCall(call_id, true);
         }
     }
-
     // UI Events
     public void onClick(View view) {
         if (view.getId() == R.id.button_hangup) {
+            Log.e("callActivity", "====1==view.getId() == R.id.button_hangup====");
             if (call_id > 0) {
+                Log.e("callActivity", "====2==view.getId() == R.id.button_hangup====");
                 // incoming ringing
                 lblStatus.setText("Rejecting Call...");
                 PhoneService.instance().hangupCall(call_id);
@@ -227,19 +265,39 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
             finish();
         } else if (view.getId() == R.id.button_answer) {
             if (call_id > 0) {
+               /* lblStatus.setText("Answering Call...");
+                btnAnswer.setVisibility(View.INVISIBLE);
+                btnAnswerAudio.setVisibility(View.INVISIBLE);
+                PhoneService.instance().getCallParams(call_id).setAudioCodec("OPUS");
+                PhoneService.instance().getCallParams(call_id).enableaudioProcessing(true);
+                PhoneService.instance().getCallParams(call_id).setAgcControlLevel(1);
+                PhoneService.instance().getCallParams(call_id).setAgcControlGain(20);
+                PhoneService.instance().answerCall(call_id, true);*/
+
+                //add by david.xu
                 lblStatus.setText("Answering Call...");
                 btnAnswer.setVisibility(View.INVISIBLE);
                 btnAnswerAudio.setVisibility(View.INVISIBLE);
-                //PhoneService.instance().getCallParams(call_id).setEglBase(rootEglBase);
-                PhoneService.instance().answerCall(call_id);
+                CallParams callParams = PhoneService.instance().getCallParams(call_id);
+                callParams.enableVideo(true);
+                callParams.setAudioCodec("opus");
+                callParams.setLocalDisplayName("david.xu");
+                callParams.setVideoWidth(640);
+                callParams.setVideoHeight(480);
+                callParams.setVideoFps(15);
+                callParams.setVideoMinBitrate(2000);
+                callParams.setVideoMaxBitrate(2000);
+                callParams.setUseCamera2(false);
+                callParams.setEnableCpuOveruseDetection(true);
+                callParams.setVideoCodecHwAcceleration(true);
+                PhoneService.instance().answerCall(call_id, true);
             }
         } else if (view.getId() == R.id.button_answer_audio) {
             if (call_id > 0) {
                 lblStatus.setText("Answering Call...");
                 btnAnswer.setVisibility(View.INVISIBLE);
                 btnAnswerAudio.setVisibility(View.INVISIBLE);
-
-                PhoneService.instance().answerCall(call_id);
+                PhoneService.instance().answerCall(call_id, false);
             }
         } else if (view.getId() == R.id.button_keypad) {
             keypadFragment.setCallId(call_id);
@@ -259,24 +317,33 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 }
                 muteAudio = !muteAudio;
                 if(muteAudio) {
-                   PhoneService.instance().stopVoiceChannel(call_id);
+                    //PhoneService.instance().stopVoiceChannel(call_id);
+                    //PhoneService.instance().setSpeakerphoneOn(call_id, false);
+                    //PhoneService.instance().stopVoiceReceiving(call_id);
+                    //PhoneService.instance().sendMessage("sip:192.168.3.57", "dddddd");
+                    PhoneService.instance().recordMedia(call_id, null, true, true);
                 } else {
-                    PhoneService.instance().startVoiceChannel(call_id);
+                    //PhoneService.instance().startVoiceChannel(call_id);
+                    //PhoneService.instance().setSpeakerphoneOn(call_id, true);
+                    PhoneService.instance().startVoiceReceiving(call_id);
                 }
             }
         } else if (view.getId() == R.id.button_mute_video) {
-            /*if (call_id > 0) {
+            if (call_id > 0) {
                 muteVideo = !muteVideo;
                 if (muteVideo) {
                     btnMuteVideo.setImageResource(R.drawable.video_muted);
-                    PhoneService.instance().stopVideoSending(call_id);
+                    //PhoneService.instance().sendMessage("192.168.3.57", "dddddd");
+                    //PhoneService.instance().stopVideoSending(call_id);
+                    //PhoneService.instance().updateCall(call_id, false);
                 } else {
                     btnMuteVideo.setImageResource(R.drawable.video_unmuted);
-                    PhoneService.instance().startVideoSending(call_id);
+                    //PhoneService.instance().updateCall(call_id, true);
+                    //PhoneService.instance().startVideoSending(call_id);
                 }
-            }*/
+            }
 
-            if (call_id > 0) {
+            /*if (call_id > 0) {
                 muteVideo = !muteVideo;
                 if (muteVideo) {
                     btnMuteVideo.setImageResource(R.drawable.video_muted);
@@ -287,7 +354,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                    // PhoneService.instance().startVideoSending(call_id);
                     PhoneService.instance().updateCallByInfo(call_id, true);
                 }
-            }
+            }*/
         }
 
     }
@@ -443,11 +510,11 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         muteAudio = false;
         muteVideo = false;
 
-        setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+        //setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
     }
 
     @Override
-    public void onCallDisConnect(int call_id, int status) {
+    public void onCallEnd(int call_id, int status, CallLogBean mCallLogBean) {
 
         Log.i(TAG, "RCConnection disconnected");
         lblStatus.setText("Disconnected");
@@ -456,7 +523,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         btnMuteVideo.setVisibility(View.INVISIBLE);
 
         this.call_id = -1;
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        //setVolumeControlStream(AudioManager.STREAM_MUSIC);
         finish();
     }
 
@@ -484,16 +551,21 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         localRender.setMirror(true);
         localRender.requestLayout();
         remoteRender.requestLayout();*/
-        PhoneService.instance().setRemoteVideoRender(callId, remoteRenderLayout);
+        Log.e(TAG, "====================onRemoteVideoReady============");
+        PhoneService.instance().setRemoteVideoRender(callId, remoteVideo);
+
+        //PhoneService.instance().enableStatsEvents(call_id, true, 1000);
+
+        //PhoneService.instance().setLocalVideoRender(callId, remoteRenderLayout);
     }
 
     @Override
-    public void onUpdatedByRemote(int i, boolean b) {
+    public void onUpdatedByRemote(int callId, boolean video) {
 
     }
 
     @Override
-    public void onUpdatedByLocal(int i, boolean b) {
+    public void onUpdatedByLocal(int callId, boolean video) {
 
     }
 }
