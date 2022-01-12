@@ -146,6 +146,13 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         this.remoteRenderLayout = (FrameLayout)findViewById(R.id.remote_video_layout);
         remoteVideo = PhoneService.instance().createRendererView(this);
         this.remoteRenderLayout.addView(remoteVideo);
+
+        PhoneService.instance().setRemoteVideoRender(call_id, remoteVideo);
+        PhoneService.instance().enableaudio(call_id, true);
+        PhoneService.instance().enablevideo(call_id, true);
+        PhoneService.instance().enableReceiveVideo(call_id, true);
+        PhoneService.instance().enableReceiveAudio(call_id, true);
+
         callParams = new CallParamsImpl();
     }
 
@@ -208,11 +215,11 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
             callParams.setVideoWidth(640);
             callParams.setVideoHeight(480);
             callParams.setVideoFps(15);
-            callParams.setVideoMinBitrate(2000);
-            callParams.setVideoMaxBitrate(2000);
+            callParams.setVideoMinBitrate(500);
+            callParams.setVideoMaxBitrate(500);
             callParams.setUseCamera2(false);
             callParams.setEnableCpuOveruseDetection(true);
-            callParams.setVideoCodecHwAcceleration(true);
+            callParams.setVideoCodecHwAcceleration(false);
             callParams.setLocalDeviceType("indoor");
 
             Log.e("callActivity", "========Initiating Call============:" +peer_number);
@@ -228,7 +235,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 text = "Audio Call from ";
             }
 
-            lblCall.setText(text + PhoneService.instance().getCallParams(call_id).remoteDisplayName());
+            //lblCall.setText(text + PhoneService.instance().getCallParams(call_id).remoteDisplayName());
             lblStatus.setText("Call Received...");
 
             //add by david.xu
@@ -249,7 +256,7 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
             callParams.setEnableCpuOveruseDetection(true);
             callParams.setVideoCodecHwAcceleration(true);
             PhoneService.instance().answerCall(call_id, true);*/
-            PhoneService.instance().answerCall(call_id, true);
+            //PhoneService.instance().answerCall(call_id, true);
         }
     }
     // UI Events
@@ -279,17 +286,19 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 btnAnswer.setVisibility(View.INVISIBLE);
                 btnAnswerAudio.setVisibility(View.INVISIBLE);
                 CallParams callParams = PhoneService.instance().getCallParams(call_id);
+                callParams.setLocalDisplayName("testdemo");
                 callParams.enableVideo(true);
-                callParams.setAudioCodec("opus");
+                //callParams.setAudioCodec("opus");
                 callParams.setLocalDisplayName("david.xu");
                 callParams.setVideoWidth(640);
                 callParams.setVideoHeight(480);
                 callParams.setVideoFps(15);
-                callParams.setVideoMinBitrate(2000);
-                callParams.setVideoMaxBitrate(2000);
+                callParams.setVideoMinBitrate(250);
+                callParams.setVideoMaxBitrate(520);
                 callParams.setUseCamera2(false);
                 callParams.setEnableCpuOveruseDetection(true);
-                callParams.setVideoCodecHwAcceleration(true);
+                callParams.setVideoCodecHwAcceleration(false);
+                callParams.setLocalDeviceType("indoor");
                 PhoneService.instance().answerCall(call_id, true);
             }
         } else if (view.getId() == R.id.button_answer_audio) {
@@ -555,7 +564,6 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         PhoneService.instance().setRemoteVideoRender(callId, remoteVideo);
 
         //PhoneService.instance().enableStatsEvents(call_id, true, 1000);
-
         //PhoneService.instance().setLocalVideoRender(callId, remoteRenderLayout);
     }
 
