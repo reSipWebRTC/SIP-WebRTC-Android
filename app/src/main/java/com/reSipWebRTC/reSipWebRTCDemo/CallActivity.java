@@ -210,18 +210,18 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
             lblCall.setText(text + peer_number);
             lblStatus.setText("Initiating Call...");
             callParams.enableVideo(true);
-            callParams.setAudioCodec("opus");
+            callParams.setAudioCodec("PCMA");
             callParams.setLocalDisplayName("david.xu");
             callParams.setVideoWidth(640);
             callParams.setVideoHeight(480);
             callParams.setVideoFps(15);
             callParams.setVideoMinBitrate(500);
-            callParams.setVideoMaxBitrate(500);
+            callParams.setVideoMaxBitrate(1024);
             callParams.setUseCamera2(false);
             callParams.setEnableCpuOveruseDetection(true);
             callParams.setVideoCodecHwAcceleration(false);
             callParams.setLocalDeviceType("indoor");
-
+            //BUNDLE audio video
             Log.e("callActivity", "========Initiating Call============:" +peer_number);
             call_id = PhoneService.instance().call(peer_number, callParams);
             //PhoneService.instance().setSpeakerphoneOn(call_id, true);
@@ -293,8 +293,8 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
                 callParams.setVideoWidth(640);
                 callParams.setVideoHeight(480);
                 callParams.setVideoFps(15);
-                callParams.setVideoMinBitrate(250);
-                callParams.setVideoMaxBitrate(520);
+                callParams.setVideoMinBitrate(500);
+                callParams.setVideoMaxBitrate(1024);
                 callParams.setUseCamera2(false);
                 callParams.setEnableCpuOveruseDetection(true);
                 callParams.setVideoCodecHwAcceleration(false);
@@ -518,6 +518,11 @@ public class CallActivity extends AppCompatActivity implements SipCallConnectedL
         // reset to no mute at beggining of new call
         muteAudio = false;
         muteVideo = false;
+
+        PhoneService.instance().enableaudio(call_id, true);
+        PhoneService.instance().enablevideo(call_id, true);
+        PhoneService.instance().enableReceiveVideo(call_id, true);
+        PhoneService.instance().enableReceiveAudio(call_id, true);
 
         //setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
     }

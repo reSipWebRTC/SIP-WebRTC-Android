@@ -224,7 +224,7 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
 
         if (!PhoneService.isready()) {
             PhoneService.instance();
-            PhoneService.instance().initSDK(this, 1, "0.0.0.0", 5060);
+            PhoneService.instance().initSDK(this, 4, "0.0.0.0", 5060);
         }
 
         PhoneService.instance().setSipRegisterListener(this);
@@ -547,13 +547,13 @@ public class CloudrtcDemo extends BaseActivity implements OnClickListener,
                     } else if (PhoneService.isVoicePermission() && PhoneService.cameraIsCanUse()) {*/
                     //if(PhoneService.instance().isNetworkReachable()) {
                         //("sip:"+mPeerNumber+"@"+sip_server);
-                        //makeCall(mPeerNumber);
-                        makeCall("sip:" +mPeerNumber +";transport=tcp");
-                        Log.e("CloudrtcDemo", "===========makeCall=========:" +mPeerNumber);
+                        //make(mPeerNumber);
+                        makeCall(mPeerNumber);
+                        Log.e("CloudrtcDemo", "====makeCall=====:" +mPeerNumber);
                     //}
                     //else {
-                        Toast.makeText(CloudrtcDemo.this, "网络没有连接", Toast.LENGTH_SHORT).show();
-                    //}makeCall
+                        //Toast.makeText(CloudrtcDemo.this, "网络没有连接", Toast.LENGTH_SHORT).show();
+                    //}makeCallCall
                    /* } else {
                         Toast.makeText(CloudrtcDemo.this, "请打开相机和录音权限", Toast.LENGTH_SHORT).show();
                     }*/
