@@ -6,4 +6,4 @@ https://github.com/reSipWebRTC/reSipWebRTC-Web
 
 https://github.com/reSipWebRTC/reSipWebRTC-IOS
 
-：13510528673
+微信 ：13510528673
